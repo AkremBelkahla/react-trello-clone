@@ -2,7 +2,9 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './app/store';
-import { BoardPage, HomePage, NotFoundPage } from './pages';
+import HomePage from './pages/HomePage';
+import BoardPage from './pages/BoardPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 const App: React.FC = () => {
   return (

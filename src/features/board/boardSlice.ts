@@ -13,9 +13,9 @@ const boardSlice = createSlice({
   initialState,
   reducers: {
     // Actions pour les tableaux
-    addBoard: (state, action: PayloadAction<{ title: string }>) => {
+    addBoard: (state, action: PayloadAction<{ id: string; title: string }>) => {
       const newBoard: Board = {
-        id: `board-${Date.now()}`,
+        id: action.payload.id,
         title: action.payload.title,
       };
       state.boards.push(newBoard);

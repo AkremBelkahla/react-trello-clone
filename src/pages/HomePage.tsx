@@ -13,11 +13,14 @@ const HomePage: React.FC = () => {
     e.preventDefault();
     if (!newBoardTitle.trim()) return;
     
-    const action = addBoard({ title: newBoardTitle });
-    dispatch(action);
+    // Créer un nouvel ID pour le tableau
+    const newBoardId = `board-${Date.now()}`;
+    
+    // Créer le tableau avec l'ID généré
+    dispatch(addBoard({ id: newBoardId, title: newBoardTitle }));
+    dispatch(setCurrentBoard(newBoardId));
     
     // Naviguer vers le nouveau tableau
-    const newBoardId = action.payload.id;
     navigate(`/board/${newBoardId}`);
     
     // Réinitialiser le champ
