@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { addBoard, setCurrentBoard } from '../features/board/boardSlice';
@@ -7,7 +7,14 @@ const HomePage: React.FC = () => {
   const [newBoardTitle, setNewBoardTitle] = useState('');
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { boards } = useAppSelector((state) => state.board);
+  const { boards, currentBoardId } = useAppSelector((state) => state.board);
+
+  // Rediriger vers le tableau par défaut s'il existe
+  useEffect(() => {
+    if (currentBoardId) {
+      navigate(`/board/${currentBoardId}`);
+    }
+  }, [currentBoardId, navigate]);
 
   const handleAddBoard = (e: React.FormEvent) => {
     e.preventDefault();
