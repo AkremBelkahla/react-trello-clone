@@ -1,16 +1,13 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import HomePage from './pages/HomePage';
 import BoardPage from './pages/BoardPage';
-import NotFoundPage from './pages/NotFoundPage';
 
 const App: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/board/:boardId" element={<BoardPage />} />
-        <Route path="*" element={<NotFoundPage />} />
+        <Route path="/" element={<BoardPage />} />
+        <Route path="*" element={<BoardPage />} />
       </Routes>
     </div>
   );

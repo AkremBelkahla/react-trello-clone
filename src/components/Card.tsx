@@ -11,16 +11,35 @@ interface CardProps {
 
 const Card: React.FC<CardProps> = ({ card }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const dispatch = useAppDispatch();
   
-  // Fonctions de placeholder pour les actions
-  const handleEdit = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    // TODO: Implémenter l'édition
+  const handleCardClick = () => {
+    setIsModalOpen(true);
+  };
+  
+  const handleSave = (updates: Partial<CardType>) => {
+    dispatch(updateCard({ 
+      id: card.id, 
+      updates 
+    }));
+  };
+  
+  const handleDelete = () => {
+    dispatch(deleteCard(card.id));
   };
 
-  const handleDelete = (e: React.MouseEvent) => {
+  // Fonctions de placeholder pour les actions
+  const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // TODO: Implémenter la suppression
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette carte ?')) {
+      dispatch(deleteCard(card.id));
+    }
   };
 
   // Déterminer si la carte a une date d'échéance
@@ -73,85 +92,93 @@ const Card: React.FC<CardProps> = ({ card }) => {
   };
 
   return (
-    <div 
-      className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 mb-2 hover:shadow-md transition-shadow cursor-pointer"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* En-tête de la carte avec titre et actions */}
-      <div className="flex justify-between items-start mb-2">
-        <h4 className="text-sm font-medium text-gray-900">{card.title}</h4>
-        {isHovered && (
-          <div className="flex space-x-1">
-            <button 
-              onClick={handleEdit}
-              className="text-gray-400 hover:text-blue-500 p-1"
-              title="Modifier"
-            >
-              <PencilIcon className="h-3.5 w-3.5" />
-            </button>
-            <button 
-              onClick={handleDelete}
-              className="text-gray-400 hover:text-red-500 p-1"
-              title="Supprimer"
-            >
-              <TrashIcon className="h-3.5 w-3.5" />
-            </button>
+    <React.Fragment>
+      <div
+        className={`bg-white rounded-lg shadow-sm p-3 mb-2 cursor-pointer hover:shadow-md transition-shadow duration-200 ${
+          isHovered ? 'ring-2 ring-blue-300' : ''
+        }`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onClick={handleCardClick}
+      >
+        {/* En-tête de la carte avec titre et actions */}
+        <div className="flex justify-between items-start mb-2">
+          <h4 className="text-sm font-medium text-gray-900">{card.title}</h4>
+          {isHovered && (
+            <div className="flex space-x-1">
+              <button 
+                onClick={handleEditClick}
+                className="text-gray-400 hover:text-blue-500 p-1"
+                title="Modifier"
+              >
+                <PencilIcon className="h-3.5 w-3.5" />
+              </button>
+              <button 
+                onClick={handleDeleteClick}
+                className="text-gray-400 hover:text-red-500 p-1"
+                title="Supprimer"
+              >
+                <TrashIcon className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-wrap gap-2 mt-2">
+          {/* Badge d'état */}
+          {card.status && (
+            <span className={`text-xs px-2 py-0.5 rounded-full ${getStatusColor()}`}>
+              {card.status === 'done' ? 'Terminé' : 
+               card.status === 'in_progress' ? 'En cours' :
+               card.status === 'in_review' ? 'En révision' : 'À faire'}
+            </span>
+          )}
+          
+          {/* Badge de priorité */}
+          {card.priority && (
+            <span className={`text-xs px-2 py-0.5 rounded-full ${getPriorityColor()}`}>
+              {getPriorityText()}
+            </span>
+          )}
+        </div>
+
+        {/* Date d'échéance */}
+        {hasDueDate && card.dueDate && (
+          <div className="flex items-center text-xs text-gray-500 mt-2">
+            <ClockIcon className={`h-3.5 w-3.5 mr-1 ${isOverdue ? 'text-red-500' : 'text-gray-400'}`} />
+            <span className={isOverdue ? 'text-red-600 font-medium' : ''}>
+              {formatDate(card.dueDate)}
+            </span>
+          </div>
+        )}
+
+        {/* Barre de progression */}
+        {card.progress !== undefined && (
+          <div className="mt-2">
+            <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1">
+              <div 
+                className="bg-blue-500 h-1.5 rounded-full" 
+                style={{ width: `${card.progress}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>Progression</span>
+              <span>{card.progress}%</span>
+            </div>
           </div>
         )}
       </div>
-
-      {/* Description */}
-      {card.description && (
-        <p className="text-xs text-gray-600 mb-2 line-clamp-2">
-          {card.description}
-        </p>
+      
+      {/* Modale d'édition */}
+      {isModalOpen && (
+        <CardModal
+          card={card}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleSave}
+          onDelete={() => dispatch(deleteCard(card.id))}
+        />
       )}
-
-      <div className="flex flex-wrap gap-2 mt-2">
-        {/* Badge d'état */}
-        {card.status && (
-          <span className={`text-xs px-2 py-0.5 rounded-full ${getStatusColor()}`}>
-            {card.status === 'done' ? 'Terminé' : 
-             card.status === 'in_progress' ? 'En cours' :
-             card.status === 'in_review' ? 'En révision' : 'À faire'}
-          </span>
-        )}
-        
-        {/* Badge de priorité */}
-        {card.priority && (
-          <span className={`text-xs px-2 py-0.5 rounded-full ${getPriorityColor()}`}>
-            {getPriorityText()}
-          </span>
-        )}
-      </div>
-
-      {/* Date d'échéance */}
-      {hasDueDate && card.dueDate && (
-        <div className="flex items-center text-xs text-gray-500 mt-2">
-          <ClockIcon className={`h-3.5 w-3.5 mr-1 ${isOverdue ? 'text-red-500' : 'text-gray-400'}`} />
-          <span className={isOverdue ? 'text-red-600 font-medium' : ''}>
-            {formatDate(card.dueDate)}
-          </span>
-        </div>
-      )}
-
-      {/* Barre de progression (exemple) */}
-      {card.progress !== undefined && (
-        <div className="mt-2">
-          <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1">
-            <div 
-              className="bg-blue-500 h-1.5 rounded-full" 
-              style={{ width: `${card.progress}%` }}
-            ></div>
-          </div>
-          <div className="flex justify-between text-xs text-gray-500">
-            <span>Progression</span>
-            <span>{card.progress}%</span>
-          </div>
-        </div>
-      )}
-    </div>
+    </React.Fragment>
   );
 };
 
