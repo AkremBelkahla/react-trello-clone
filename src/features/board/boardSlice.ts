@@ -289,6 +289,24 @@ const boardSlice = createSlice({
         card.listId = destinationListId;
       }
     },
+    
+    // Mettre à jour une liste
+    updateList: (state, action: PayloadAction<{ id: string; title: string }>) => {
+      const { id, title } = action.payload;
+      const list = state.lists.find(list => list.id === id);
+      if (list) {
+        list.title = title;
+      }
+    },
+    
+    // Supprimer une liste et toutes ses cartes
+    deleteList: (state, action: PayloadAction<{ id: string }>) => {
+      const { id } = action.payload;
+      // Supprimer la liste
+      state.lists = state.lists.filter(list => list.id !== id);
+      // Supprimer toutes les cartes de cette liste
+      state.cards = state.cards.filter(card => card.listId !== id);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -319,7 +337,15 @@ const updateCard = createAction<{
 // Action pour supprimer une carte
 const deleteCard = createAction<string>('board/deleteCard');
 
-export const { addBoard, setCurrentBoard, addList, addCard, moveCard } = boardSlice.actions;
+export const { 
+  addBoard, 
+  setCurrentBoard, 
+  addList, 
+  addCard, 
+  moveCard,
+  updateList,
+  deleteList
+} = boardSlice.actions;
 
 export { updateCard, deleteCard };
 export default boardSlice.reducer;

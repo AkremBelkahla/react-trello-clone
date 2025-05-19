@@ -2,7 +2,13 @@ import React, { useState, useRef } from 'react';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { PlusIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
-import { addList, addCard, moveCard } from '../features/board/boardSlice';
+import { 
+  addList, 
+  addCard, 
+  moveCard, 
+  updateList, 
+  deleteList 
+} from '../features/board/boardSlice';
 import List from '../components/List';
 import '../index.css';
 
@@ -47,34 +53,34 @@ const BoardPage: React.FC = () => {
     }
   };
   
-  const handleAddCard = (title: string) => {
+  const handleAddCard = (title: string, listId: string) => {
     if (!title.trim()) return;
     
-    // Utiliser la première liste disponible comme liste par défaut
-    // ou la liste sélectionnée si vous avez une logique de sélection
-    const defaultList = boardLists[0];
-    if (!defaultList) return;
+    const targetList = boardLists.find(list => list.id === listId);
+    if (!targetList) return;
     
     let status: 'todo' | 'in_progress' | 'in_review' | 'done' = 'todo';
     
     // Déterminer le statut en fonction du nom de la liste
-    if (defaultList.title.includes('En cours')) status = 'in_progress';
-    else if (defaultList.title.includes('révision')) status = 'in_review';
-    else if (defaultList.title.includes('Terminé')) status = 'done';
+    if (targetList.title.includes('En cours')) status = 'in_progress';
+    else if (targetList.title.includes('révision')) status = 'in_review';
+    else if (targetList.title.includes('Terminé')) status = 'done';
     
     dispatch(addCard({
       title,
-      listId: defaultList.id,
+      listId,
       status,
       priority: 'medium',
       progress: 0,
-      description: ''
+      description: '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     }));
   };
   
   const handleDragEnd = (result: DropResult) => {
-    const { destination, source, draggableId } = result;
-    
+    const { destination, source, draggableId, type } = result;
+
     // Si la destination n'existe pas ou si l'élément est déposé au même endroit
     if (!destination || 
         (destination.droppableId === source.droppableId && 
@@ -83,7 +89,7 @@ const BoardPage: React.FC = () => {
     }
     
     // Si c'est une carte qui est déplacée
-    if (result.type === 'CARD') {
+    if (type === 'CARD') {
       dispatch(moveCard({
         cardId: draggableId,
         sourceListId: source.droppableId,
@@ -92,13 +98,24 @@ const BoardPage: React.FC = () => {
       }));
     }
   };
+  
+  const handleUpdateList = (id: string, title: string) => {
+    if (!title.trim()) return;
+    dispatch(updateList({ id, title }));
+  };
+
+  const handleDeleteList = (id: string) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette liste et toutes ses cartes ?')) {
+      dispatch(deleteList({ id }));
+    }
+  };
 
   if (boards.length === 0) {
     return <div>Chargement du tableau...</div>;
   }
   
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="bg-blue-gradient">
       <header className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold">{boards[0].title}</h1>
@@ -175,6 +192,8 @@ const BoardPage: React.FC = () => {
                     list={list}
                     cards={listCards}
                     onAddCard={handleAddCard}
+                    onUpdateList={handleUpdateList}
+                    onDeleteList={handleDeleteList}
                   />
                 );
               })}
