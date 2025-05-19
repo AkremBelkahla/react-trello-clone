@@ -11,7 +11,7 @@ const BoardPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const [newListTitle, setNewListTitle] = useState('');
   
-  const { boards, lists, cards, currentBoardId } = useAppSelector((state) => state.board);
+  const { boards, lists, cards } = useAppSelector((state) => state.board);
   
   // Trouver le tableau actuel
   const currentBoard = boards.find(board => board.id === boardId);
