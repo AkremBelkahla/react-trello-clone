@@ -2,10 +2,57 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AppState, Board, Card, List } from '../../types';
 
 const initialState: AppState = {
-  boards: [],
-  lists: [],
-  cards: [],
-  currentBoardId: null,
+  boards: [
+    {
+      id: 'board-1',
+      title: 'Projet Web - Tableau de bord',
+    },
+  ],
+  lists: [
+    { id: 'list-1', title: 'À faire', boardId: 'board-1' },
+    { id: 'list-2', title: 'En cours', boardId: 'board-1' },
+    { id: 'list-3', title: 'En révision', boardId: 'board-1' },
+    { id: 'list-4', title: 'Terminé', boardId: 'board-1' },
+  ],
+  cards: [
+    {
+      id: 'card-1',
+      title: 'Créer la maquette Figma',
+      description: 'Dessiner les maquettes pour les pages principales',
+      listId: 'list-1',
+    },
+    {
+      id: 'card-2',
+      title: 'Configurer le routeur React',
+      description: 'Mettre en place la navigation entre les pages',
+      listId: 'list-1',
+    },
+    {
+      id: 'card-3',
+      title: 'Implémenter le header',
+      description: 'Créer le composant header avec la navigation',
+      listId: 'list-2',
+    },
+    {
+      id: 'card-4',
+      title: 'Style du formulaire de connexion',
+      description: 'Appliquer le style CSS au formulaire',
+      listId: 'list-2',
+    },
+    {
+      id: 'card-5',
+      title: 'Page d\'accueil',
+      description: 'Révision du design et des animations',
+      listId: 'list-3',
+    },
+    {
+      id: 'card-6',
+      title: 'Documentation API',
+      description: 'Rédiger la documentation pour les développeurs',
+      listId: 'list-4',
+    },
+  ],
+  currentBoardId: 'board-1',
 };
 
 const boardSlice = createSlice({
