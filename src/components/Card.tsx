@@ -46,24 +46,24 @@ const Card: React.FC<CardProps> = ({ card }) => {
   const hasDueDate = Boolean(card.dueDate);
   const isOverdue = hasDueDate && card.dueDate ? new Date(card.dueDate) < new Date() : false;
   
-  // Couleur de la pastille en fonction de l'état
+  // Couleur de la pastille en fonction de l'état (clair et sombre)
   const getStatusColor = () => {
-    if (card.status === 'done') return 'bg-green-100 text-green-700';
-    if (isOverdue) return 'bg-red-100 text-red-700';
-    return 'bg-gray-100 text-gray-700';
+    if (card.status === 'done') return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300';
+    if (isOverdue) return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300';
+    return 'bg-gray-100 dark:bg-gray-700/30 text-gray-700 dark:text-gray-300';
   };
   
-  // Couleur de la priorité
+  // Couleur de la priorité (clair et sombre)
   const getPriorityColor = () => {
     switch (card.priority) {
       case 'high':
-        return 'bg-red-100 text-red-700';
+        return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300';
       case 'medium':
-        return 'bg-yellow-100 text-yellow-700';
+        return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300';
       case 'low':
-        return 'bg-blue-100 text-blue-700';
+        return 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-gray-100 dark:bg-gray-700/30 text-gray-700 dark:text-gray-300';
     }
   };
   
@@ -106,19 +106,19 @@ const Card: React.FC<CardProps> = ({ card }) => {
           <h4 className="text-sm font-medium text-gray-900">{card.title}</h4>
           {isHovered && (
             <div className="flex space-x-1">
-              <button 
+              <button
                 onClick={handleEditClick}
-                className="text-gray-400 hover:text-blue-500 p-1"
-                title="Modifier"
+                className="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 p-1 -mr-1 rounded hover:bg-gray-100 dark:hover:bg-dark-600 transition-colors duration-200"
+                title="Modifier la carte"
               >
-                <PencilIcon className="h-3.5 w-3.5" />
+                <PencilIcon className="h-4 w-4" />
               </button>
-              <button 
+              <button
                 onClick={handleDeleteClick}
-                className="text-gray-400 hover:text-red-500 p-1"
-                title="Supprimer"
+                className="text-gray-400 hover:text-red-500 dark:hover:text-red-400 p-1 -mr-1 rounded hover:bg-gray-100 dark:hover:bg-dark-600 transition-colors duration-200"
+                title="Supprimer la carte"
               >
-                <TrashIcon className="h-3.5 w-3.5" />
+                <TrashIcon className="h-4 w-4" />
               </button>
             </div>
           )}
@@ -127,7 +127,7 @@ const Card: React.FC<CardProps> = ({ card }) => {
         <div className="flex flex-wrap gap-2 mt-2">
           {/* Badge d'état */}
           {card.status && (
-            <span className={`text-xs px-2 py-0.5 rounded-full ${getStatusColor()}`}>
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getStatusColor()}`}>
               {card.status === 'done' ? 'Terminé' : 
                card.status === 'in_progress' ? 'En cours' :
                card.status === 'in_review' ? 'En révision' : 'À faire'}
@@ -136,7 +136,7 @@ const Card: React.FC<CardProps> = ({ card }) => {
           
           {/* Badge de priorité */}
           {card.priority && (
-            <span className={`text-xs px-2 py-0.5 rounded-full ${getPriorityColor()}`}>
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getPriorityColor()}`}>
               {getPriorityText()}
             </span>
           )}
@@ -144,9 +144,16 @@ const Card: React.FC<CardProps> = ({ card }) => {
 
         {/* Date d'échéance */}
         {hasDueDate && card.dueDate && (
-          <div className="flex items-center text-xs text-gray-500 mt-2">
-            <ClockIcon className={`h-3.5 w-3.5 mr-1 ${isOverdue ? 'text-red-500' : 'text-gray-400'}`} />
-            <span className={isOverdue ? 'text-red-600 font-medium' : ''}>
+          <div className="flex items-center text-xs mt-2">
+            <ClockIcon className={`h-3.5 w-3.5 mr-1 ${
+              isOverdue 
+                ? 'text-red-500 dark:text-red-400' 
+                : 'text-gray-500 dark:text-gray-400'
+            }`} />
+            <span className={isOverdue 
+              ? 'text-red-600 dark:text-red-400 font-medium' 
+              : 'text-gray-600 dark:text-gray-300'
+            }>
               {formatDate(card.dueDate)}
             </span>
           </div>
@@ -155,15 +162,18 @@ const Card: React.FC<CardProps> = ({ card }) => {
         {/* Barre de progression */}
         {card.progress !== undefined && (
           <div className="mt-2">
-            <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1">
+            <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5 mb-1 overflow-hidden">
               <div 
-                className="bg-blue-500 h-1.5 rounded-full" 
+                className={`h-full rounded-full transition-all duration-300 ${
+                  card.progress < 30 ? 'bg-red-500' : 
+                  card.progress < 70 ? 'bg-yellow-500' : 'bg-green-500'
+                }`} 
                 style={{ width: `${card.progress}%` }}
               />
             </div>
-            <div className="flex justify-between text-xs text-gray-500">
+            <div className="flex justify-between text-xs text-gray-600 dark:text-gray-300">
               <span>Progression</span>
-              <span>{card.progress}%</span>
+              <span className="font-medium">{card.progress}%</span>
             </div>
           </div>
         )}

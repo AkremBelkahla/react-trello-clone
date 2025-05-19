@@ -111,7 +111,14 @@ const BoardPage: React.FC = () => {
   };
 
   if (boards.length === 0) {
-    return <div>Chargement du tableau...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 dark:from-dark-900 dark:to-dark-800">
+        <div className="text-center p-6 bg-white dark:bg-dark-800 rounded-lg shadow-md">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-700 dark:text-gray-300">Chargement du tableau...</p>
+        </div>
+      </div>
+    );
   }
   
   return (
@@ -164,18 +171,26 @@ const BoardPage: React.FC = () => {
         <div className="relative">
           <button 
             onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white dark:bg-dark-700 p-2 rounded-full shadow-md hover:bg-gray-100 dark:hover:bg-dark-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-dark-900 transition-colors duration-200"
             aria-label="Faire défiler vers la gauche"
           >
-            <ChevronLeftIcon className="w-6 h-6 text-gray-600" />
+            <ChevronLeftIcon className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+          </button>
+          
+          <button 
+            onClick={() => scroll('right')}
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white dark:bg-dark-700 p-2 rounded-full shadow-md hover:bg-gray-100 dark:hover:bg-dark-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-dark-900 transition-colors duration-200"
+            aria-label="Faire défiler vers la droite"
+          >
+            <ChevronRightIcon className="w-6 h-6 text-gray-600 dark:text-gray-300" />
           </button>
           
           <DragDropContext onDragEnd={handleDragEnd}>
             <div 
               ref={containerRef}
-              className="flex-1 p-4 overflow-x-hidden scrollbar-hide"
+              className="flex-1 p-4 overflow-x-auto scrollbar-hide"
             >
-              <div className="flex items-start gap-4 w-max">
+              <div className="flex items-start gap-4 w-max pb-2">
               {boardLists.map((list) => {
                 const listCards = cards
                   .filter(card => card.listId === list.id)
@@ -204,10 +219,10 @@ const BoardPage: React.FC = () => {
         </DragDropContext>
         <button 
           onClick={() => scroll('right')}
-          className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white dark:bg-dark-700 p-2 rounded-full shadow-md hover:bg-gray-100 dark:hover:bg-dark-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
           aria-label="Faire défiler vers la droite"
         >
-          <ChevronRightIcon className="w-6 h-6 text-gray-600" />
+          <ChevronRightIcon className="w-6 h-6 text-gray-600 dark:text-gray-300" />
         </button>
       </div>
     </main>

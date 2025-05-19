@@ -2,18 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: #f0f9ff; /* Couleur de secours */
+@layer base {
+  :root {
+    --color-dark-main: #1a1a1a;
+    --color-dark-secondary: #2d2d2d;
+    --color-dark-card: #333333;
+    --color-dark-input: #404040;
+    --color-dark-border: #404040;
+    --color-dark-primary: #f3f4f6;
+    --color-dark-secondary-text: #d1d5db;
+    --color-dark-muted: #9ca3af;
+  }
 }
 
+@layer base {
+  body {
+    @apply bg-white text-gray-900 dark:bg-dark-900 dark:text-dark-100 transition-colors duration-200;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+      Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Styles de base pour les éléments de formulaire */
+  input, textarea, select, button {
+    @apply transition-colors duration-200;
+  }
+
+  input:focus, textarea:focus, select:focus, button:focus {
+    @apply outline-none ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-dark-900;
+  }
+
+  /* Styles pour les liens */
+  a {
+    @apply text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200;
+  }
+
+  /* Styles pour les boutons */
+  button {
+    @apply focus:outline-none;
+  }
+
+  /* Styles pour les cartes */
+  .card {
+    @apply bg-white dark:bg-dark-700 rounded-lg shadow-sm p-4 transition-all duration-200 hover:shadow-md;
+  }
+
+  /* Styles pour les entrées de formulaire */
+  .input {
+    @apply w-full px-3 py-2 border border-gray-300 dark:border-dark-500 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  }
+}
+
+/* Dégradé de fond pour le mode clair */
 .bg-blue-gradient {
-  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%);
+  @apply bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 dark:from-dark-900 dark:to-dark-800;
   min-height: 100vh;
 }
 
@@ -25,4 +68,22 @@ body {
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Styles pour les barres de défilement personnalisées */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-dark-700;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-dark-500 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-dark-400;
 }

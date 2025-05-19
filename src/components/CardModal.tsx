@@ -151,27 +151,26 @@ const CardModal: React.FC<CardModalProps> = ({ card, onClose, onSave, onDelete }
             </div>
           </div>
           
-          <div className="flex justify-between items-center pt-4 border-t">
+          <div className="flex justify-between pt-2">
             <button
               type="button"
               onClick={handleDelete}
-              className="flex items-center text-red-600 hover:text-red-800"
+              className="flex items-center px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-dark-800"
             >
-              <TrashIcon className="h-5 w-5 mr-1" />
+              <TrashIcon className="h-4 w-4 mr-1.5" />
               Supprimer
             </button>
-            
             <div className="space-x-2">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-dark-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-dark-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-dark-800"
               >
                 Annuler
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-dark-800"
               >
                 Enregistrer
               </button>
