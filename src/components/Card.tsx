@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Card as CardType } from '../types';
-import { PencilIcon, TrashIcon, ClockIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon, ClockIcon } from '@heroicons/react/24/outline';
+import CardModal from './CardModal';
+import { useAppDispatch } from '../app/hooks';
+import { updateCard, deleteCard } from '../features/board/boardSlice';
 
 interface CardProps {
   card: CardType;
@@ -105,14 +108,23 @@ const Card: React.FC<CardProps> = ({ card }) => {
         </p>
       )}
 
-      {/* Badge d'état */}
-      {card.status && (
-        <div className="flex items-center mb-2">
+      <div className="flex flex-wrap gap-2 mt-2">
+        {/* Badge d'état */}
+        {card.status && (
           <span className={`text-xs px-2 py-0.5 rounded-full ${getStatusColor()}`}>
-            {card.status === 'done' ? 'Terminé' : 'En cours'}
+            {card.status === 'done' ? 'Terminé' : 
+             card.status === 'in_progress' ? 'En cours' :
+             card.status === 'in_review' ? 'En révision' : 'À faire'}
           </span>
-        </div>
-      )}
+        )}
+        
+        {/* Badge de priorité */}
+        {card.priority && (
+          <span className={`text-xs px-2 py-0.5 rounded-full ${getPriorityColor()}`}>
+            {getPriorityText()}
+          </span>
+        )}
+      </div>
 
       {/* Date d'échéance */}
       {hasDueDate && card.dueDate && (

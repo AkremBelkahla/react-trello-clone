@@ -38,9 +38,26 @@ const BoardPage: React.FC = () => {
     setNewListTitle('');
   };
   
-  const handleAddCard = (listId: string, title: string) => {
-    if (!title.trim()) return;
-    dispatch(addCard({ title, listId }));
+  const handleAddCard = (title: string, listId: string = boardId || '') => {
+    if (!title.trim() || !listId) return;
+    
+    // Trouver la liste par son ID pour déterminer le statut par défaut
+    const targetList = lists.find(list => list.id === listId);
+    let status: 'todo' | 'in_progress' | 'in_review' | 'done' = 'todo';
+    
+    if (targetList) {
+      // Déterminer le statut en fonction du nom de la liste
+      if (targetList.title.includes('En cours')) status = 'in_progress';
+      else if (targetList.title.includes('révision')) status = 'in_review';
+      else if (targetList.title.includes('Terminé')) status = 'done';
+    }
+    
+    dispatch(addCard({ 
+      title, 
+      listId,
+      status,
+      progress: status === 'done' ? 100 : 0
+    }));
   };
   
   const onDragEnd = (result: DropResult) => {

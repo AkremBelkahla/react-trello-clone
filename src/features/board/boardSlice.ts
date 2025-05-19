@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAction, PayloadAction } from '@reduxjs/toolkit';
 import { AppState, Board, Card, List } from '../../types';
 
 const initialState: AppState = {
@@ -120,12 +120,45 @@ const boardSlice = createSlice({
     },
     
     // Actions pour les cartes
-    addCard: (state, action: PayloadAction<{ title: string; listId: string }>) => {
+    addCard(
+      state, 
+      action: PayloadAction<{ 
+        title: string; 
+        listId: string;
+        status?: 'todo' | 'in_progress' | 'in_review' | 'done';
+        description?: string;
+        dueDate?: string;
+        progress?: number;
+        priority?: 'low' | 'medium' | 'high';
+        labels?: string[];
+        assignees?: string[];
+        createdAt?: string;
+        updatedAt?: string;
+      }>
+    ) {
+      const { 
+        title, 
+        listId, 
+        status = 'todo',
+        description = '',
+        progress = 0,
+        priority = 'medium',
+        createdAt = new Date().toISOString(),
+        updatedAt = new Date().toISOString()
+      } = action.payload;
+      
       const newCard: Card = {
         id: `card-${Date.now()}`,
-        title: action.payload.title,
-        listId: action.payload.listId,
+        title,
+        description,
+        listId,
+        status,
+        progress,
+        priority,
+        createdAt,
+        updatedAt
       };
+      
       state.cards.push(newCard);
     },
     
@@ -141,7 +174,36 @@ const boardSlice = createSlice({
       }
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(updateCard, (state, action) => {
+        const { id, updates } = action.payload;
+        const cardIndex = state.cards.findIndex(card => card.id === id);
+        if (cardIndex !== -1) {
+          state.cards[cardIndex] = {
+            ...state.cards[cardIndex],
+            ...updates,
+            updatedAt: new Date().toISOString()
+          };
+        }
+      })
+      .addCase(deleteCard, (state, action) => {
+        const cardId = action.payload;
+        state.cards = state.cards.filter(card => card.id !== cardId);
+      });
+  },
 });
 
+// Action pour mettre à jour une carte
+const updateCard = createAction<{ 
+  id: string; 
+  updates: Partial<Card> 
+}>('board/updateCard');
+
+// Action pour supprimer une carte
+const deleteCard = createAction<string>('board/deleteCard');
+
 export const { addBoard, setCurrentBoard, addList, addCard, moveCard } = boardSlice.actions;
+
+export { updateCard, deleteCard };
 export default boardSlice.reducer;
