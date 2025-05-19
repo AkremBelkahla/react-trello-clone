@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
+import { PlusIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { addList, addCard, moveCard } from '../features/board/boardSlice';
 import List from '../components/List';
+import '../index.css';
 
 const BoardPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const [newListTitle, setNewListTitle] = useState('');
+  const [showAddListForm, setShowAddListForm] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   
   const { boards, lists, cards } = useAppSelector((state) => state.board);
   
@@ -18,7 +22,10 @@ const BoardPage: React.FC = () => {
   
   const handleAddList = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newListTitle.trim()) return;
+    if (!newListTitle.trim()) {
+      setShowAddListForm(false);
+      return;
+    }
     
     dispatch(addList({
       title: newListTitle,
@@ -26,25 +33,38 @@ const BoardPage: React.FC = () => {
     }));
     
     setNewListTitle('');
+    setShowAddListForm(false);
   };
   
-  const handleAddCard = (title: string, listId: string) => {
-    if (!title.trim() || !listId) return;
+  const scroll = (direction: 'left' | 'right') => {
+    if (containerRef.current) {
+      const scrollAmount = 300; // Ajustez cette valeur selon vos besoins
+      if (direction === 'left') {
+        containerRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+      } else {
+        containerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      }
+    }
+  };
+  
+  const handleAddCard = (title: string) => {
+    if (!title.trim()) return;
     
-    // Trouver la liste par son ID pour déterminer le statut par défaut
-    const targetList = lists.find(list => list.id === listId);
+    // Utiliser la première liste disponible comme liste par défaut
+    // ou la liste sélectionnée si vous avez une logique de sélection
+    const defaultList = boardLists[0];
+    if (!defaultList) return;
+    
     let status: 'todo' | 'in_progress' | 'in_review' | 'done' = 'todo';
     
-    if (targetList) {
-      // Déterminer le statut en fonction du nom de la liste
-      if (targetList.title.includes('En cours')) status = 'in_progress';
-      else if (targetList.title.includes('révision')) status = 'in_review';
-      else if (targetList.title.includes('Terminé')) status = 'done';
-    }
+    // Déterminer le statut en fonction du nom de la liste
+    if (defaultList.title.includes('En cours')) status = 'in_progress';
+    else if (defaultList.title.includes('révision')) status = 'in_review';
+    else if (defaultList.title.includes('Terminé')) status = 'done';
     
     dispatch(addCard({
       title,
-      listId,
+      listId: defaultList.id,
       status,
       priority: 'medium',
       progress: 0,
@@ -52,7 +72,7 @@ const BoardPage: React.FC = () => {
     }));
   };
   
-  const onDragEnd = (result: DropResult) => {
+  const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
     
     // Si la destination n'existe pas ou si l'élément est déposé au même endroit
@@ -80,21 +100,73 @@ const BoardPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold">{boards[0].title}</h1>
+          <div className="flex items-center space-x-4">
+            {!showAddListForm ? (
+              <button
+                onClick={() => setShowAddListForm(true)}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm flex items-center"
+              >
+                <PlusIcon className="w-4 h-4 mr-1" />
+                Ajouter une liste
+              </button>
+            ) : (
+              <form onSubmit={handleAddList} className="flex items-center space-x-2">
+                <input
+                  type="text"
+                  value={newListTitle}
+                  onChange={(e) => setNewListTitle(e.target.value)}
+                  placeholder="Nom de la liste"
+                  className="p-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  autoFocus
+                />
+                <button
+                  type="submit"
+                  className="bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600 text-sm"
+                >
+                  Ajouter
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddListForm(false);
+                    setNewListTitle('');
+                  }}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </button>
+              </form>
+            )}
+          </div>
         </div>
       </header>
       
       <main className="container mx-auto px-4 py-6">
-        <DragDropContext onDragEnd={onDragEnd}>
-          <div className="flex-1 p-4 overflow-x-auto">
-            <div className="flex items-start gap-4">
+        <div className="relative">
+          <button 
+            onClick={() => scroll('left')}
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-label="Faire défiler vers la gauche"
+          >
+            <ChevronLeftIcon className="w-6 h-6 text-gray-600" />
+          </button>
+          
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <div 
+              ref={containerRef}
+              className="flex-1 p-4 overflow-x-hidden scrollbar-hide"
+            >
+              <div className="flex items-start gap-4 w-max">
               {boardLists.map((list) => {
                 const listCards = cards
                   .filter(card => card.listId === list.id)
                   .sort((a, b) => {
                     // Trier les cartes par date de création (les plus récentes en premier)
-                    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                    return dateB - dateA;
                   });
                   
                 return (
@@ -107,38 +179,20 @@ const BoardPage: React.FC = () => {
                 );
               })}
               
-              {/* Formulaire pour ajouter une nouvelle liste */}
-              <div className="w-64 flex-shrink-0">
-                <form onSubmit={handleAddList} className="bg-gray-100 p-2 rounded-lg">
-                  <input
-                    type="text"
-                    value={newListTitle}
-                    onChange={(e) => setNewListTitle(e.target.value)}
-                    placeholder="+ Ajouter une autre liste"
-                    className="w-full p-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <div className="mt-2 flex">
-                    <button
-                      type="submit"
-                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
-                    >
-                      Ajouter une liste
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setNewListTitle('')}
-                      className="ml-2 text-gray-500 hover:text-gray-700"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </form>
-              </div>
+
             </div>
           </div>
         </DragDropContext>
-      </main>
-    </div>
+        <button 
+          onClick={() => scroll('right')}
+          className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          aria-label="Faire défiler vers la droite"
+        >
+          <ChevronRightIcon className="w-6 h-6 text-gray-600" />
+        </button>
+      </div>
+    </main>
+  </div>
   );
 };
 

@@ -10,7 +10,7 @@ interface ListProps {
     title: string;
   };
   cards: CardType[];
-  onAddCard: (title: string) => void;
+  onAddCard: (title: string, listId: string) => void;
 }
 
 const List: React.FC<ListProps> = ({ list, cards, onAddCard }) => {
@@ -24,7 +24,7 @@ const List: React.FC<ListProps> = ({ list, cards, onAddCard }) => {
       return;
     }
     
-    onAddCard(newCardTitle);
+    onAddCard(newCardTitle, list.id);
     setNewCardTitle('');
     setIsAddingCard(false);
   };

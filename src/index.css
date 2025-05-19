@@ -11,3 +11,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
   @apply bg-gray-100;
 }
+
+/* Styles pour masquer la barre de défilement */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
